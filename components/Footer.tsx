@@ -17,7 +17,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li><Link href="/autos" className="hover:text-gray-200 transition-colors">Autos</Link></li>
               <li><Link href="/politicas" className="hover:text-gray-200 transition-colors">Políticas</Link></li>
-              <li><Link href="/preguntas-frecuentes" className="hover:text-gray-200 transition-colors">Preguntas Frecuentes</Link></li>
+              <li><Link href="/preguntas" className="hover:text-gray-200 transition-colors">Preguntas Frecuentes</Link></li>
               <li><Link href="/contacto" className="hover:text-gray-200 transition-colors">Contáctenos</Link></li>
             </ul>
           </div>

@@ -5,47 +5,39 @@ import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// Importamos los iconos para la visibilidad de la contraseña
 import { Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // Estado para controlar si se muestra la contraseña
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError('');
-  setLoading(true);
-  
-  try {
-    // 1. Autenticar con Firebase
-    await signInWithEmailAndPassword(auth, email, password);
+    e.preventDefault();
+    setError('');
+    setLoading(true);
     
-    // 2. Forzamos la escritura de la cookie aquí también por si el Context tarda
-    Cookies.set('session', 'true', { expires: 7, path: '/' });
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      Cookies.set('session', 'true', { expires: 7, path: '/' });
 
-    // 3. Pequeño respiro para que el navegador asiente la cookie
-    // y el Middleware no nos rebote
-    setTimeout(() => {
-      window.location.href = '/cuenta'; 
-      // Usar window.location.href en lugar de router.push 
-      // fuerza una carga limpia que garantiza que el middleware lea la cookie nueva.
-    }, 800);
-    
-  } catch (err: any) {
-    setLoading(false);
-    setError('Credenciales incorrectas.');
-  }
-};
+      setTimeout(() => {
+        window.location.href = '/cuenta'; 
+      }, 800);
+      
+    } catch (err: any) {
+      setLoading(false);
+      setError('Credenciales incorrectas.');
+    }
+  };
 
   return (
-    <main className="min-h-screen bg-[#f8f9fb] flex items-center justify-center p-6" style={{ fontFamily: 'var(--font-roboto), sans-serif' }}>
+    // CAMBIO AQUÍ: Cambiamos items-center por items-start y agregamos pt-12 o pt-20
+    <main className="min-h-screen bg-[#f8f9fb] flex items-start justify-center p-6 pt-16 md:pt-24" style={{ fontFamily: 'var(--font-roboto), sans-serif' }}>
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden border border-gray-100">
         
         {/* Header Identidad Tekdrive */}
@@ -92,7 +84,6 @@ export default function LoginPage() {
                 </Link>
               </div>
               
-              {/* Contenedor relativo para el input y el icono */}
               <div className="relative">
                 <input 
                   type={showPassword ? "text" : "password"} 
@@ -102,12 +93,10 @@ export default function LoginPage() {
                   className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-1 focus:ring-[#db5576] transition-all text-sm pr-10"
                   placeholder="••••••••"
                 />
-                {/* Botón para alternar visibilidad */}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#db5576] transition-colors"
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>

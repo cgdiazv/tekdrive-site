@@ -102,10 +102,10 @@ export default function AutosPage() {
                 </div>
 
                 {/* Botón de Acción */}
-                <div className="mt-6 flex justify-end">
+                <div className="mt-6 flex justify-center md:justify-end">
                   <Link
-                    href={`/reservar/${car.id}`}
-                    className="bg-[#db5576] hover:bg-[#c24a68] text-white px-10 py-2.5 rounded-full font-bold text-sm transition-colors uppercase tracking-widest"
+                    href={`/autos/${car.id}`}
+                    className="bg-[#db5576] hover:bg-[#c24a68] text-white px-10 py-2.5 rounded-full font-bold text-sm transition-colors uppercase tracking-widest cursor-pointer w-full md:w-auto text-center"
                   >
                     Reservar
                   </Link>

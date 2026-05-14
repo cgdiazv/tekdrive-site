@@ -78,7 +78,7 @@ export default function FeaturedCars() {
               
               {/* Botón Reservar: Rojo Tekdrive + Full Round */}
               <Link
-                href={`/reservar/${car.id}`}
+                href={`/autos/${car.id}`}
                 className="bg-[#db5576] hover:bg-[#c24a68] text-white px-8 py-2.5 rounded-full font-semibold text-sm transition-colors w-full sm:w-auto"
               >
                 RESERVAR

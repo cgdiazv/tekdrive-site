@@ -1,15 +1,19 @@
 @import "tailwindcss";
 
+/* Aquí definimos nuestras variables globales para Tailwind v4 */
+@theme {
+  /* Colores Tekdrive */
+  --color-tekdrive-red: #db5576;
+  --color-tekdrive-red-hover: #c24a68;
+  --color-tekdrive-blue: #003853;
+  --color-tekdrive-footer: #4882a1;
+  --color-tekdrive-footer-dark: #2a4555;
+}
+
+/* El resto de tu código base (si tienes algo más, déjalo aquí abajo) */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,7 +24,7 @@
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
+  background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }

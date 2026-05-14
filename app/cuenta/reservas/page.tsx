@@ -1,128 +1,129 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { useAuth } from '@/context/AuthContext';
+import { 
+  Car, 
+  Calendar, 
+  Clock, 
+  ChevronLeft, 
+  AlertCircle, 
+  ExternalLink,
+  MapPin
+} from 'lucide-react';
 import Link from 'next/link';
-import { Car, Calendar, MapPin, ChevronLeft, Clock } from 'lucide-react';
 
-// Interfaz para definir la estructura de una reserva
+// Definimos la interfaz para TypeScript según lo que guardamos en Autos/Id
 interface Reserva {
   id: string;
-  auto: string;
-  modelo: string;
+  nombreAuto: string;
   fechaInicio: string;
   fechaFin: string;
-  estado: 'Activa' | 'Completada' | 'Pendiente';
-  precioTotal: number;
+  total: number;
+  estado: string;
+  dias: number;
 }
 
 export default function MisReservasPage() {
-  // Simulación de datos (En el futuro esto vendrá de Firestore)
-  const [reservas, setReservas] = useState<Reserva[]>([
-    {
-      id: 'TK-8821',
-      auto: 'Toyota Hilux',
-      modelo: '2024 - 4x4 Diésel',
-      fechaInicio: '20 May 2026',
-      fechaFin: '25 May 2026',
-      estado: 'Pendiente',
-      precioTotal: 450.00
+  const { user } = useAuth();
+  const [reservas, setReservas] = useState<Reserva[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReservas = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Consultamos la colección 'reservas' filtrando por el UID del usuario logueado
+        const q = query(
+          collection(db, 'reservas'),
+          where('clienteId', '==', user.uid),
+          orderBy('fechaCreacion', 'desc')
+        );
+
+        const querySnapshot = await getDocs(q);
+        const listaReservas = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Reserva[];
+
+        setReservas(listaReservas);
+      } catch (error) {
+        console.error("Error al obtener reservas:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReservas();
+  }, [user]);
+
+  // Función para dar color al badge de estado
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'confirmada': return 'bg-green-100 text-green-700 border-green-200';
+      case 'pendiente': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'cancelada': return 'bg-red-100 text-red-700 border-red-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
-  ]);
+  };
 
   return (
-    <main className="min-h-screen bg-[#f8f9fb] pb-20">
-      <div className="max-w-4xl mx-auto pt-12 px-6">
+    <main className="min-h-screen bg-[#f8f9fb] pb-20 pt-10 px-6" style={{ fontFamily: 'var(--font-roboto), sans-serif' }}>
+      <div className="max-w-4xl mx-auto">
         
-        {/* Botón Volver */}
-        <Link 
-          href="/cuenta" 
-          className="inline-flex items-center gap-2 text-gray-500 hover:text-[#003853] mb-6 transition-colors text-sm font-medium"
-        >
-          <ChevronLeft size={16} />
-          Volver a mi cuenta
+        <Link href="/cuenta" className="inline-flex items-center gap-2 text-gray-400 hover:text-[#003853] mb-8 transition-colors text-[10px] font-black uppercase tracking-widest cursor-pointer">
+          <ChevronLeft size={14} /> Volver a mi cuenta
         </Link>
 
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-[#003853]">Mis Reservas</h1>
-          <p className="text-gray-500">Gestiona tus alquileres de vehículos en Tekdrive</p>
+        <header className="mb-10">
+          <h1 className="text-3xl font-black text-[#003853] uppercase tracking-tight">Mis Reservas</h1>
+          <p className="text-gray-400 text-xs uppercase tracking-widest mt-1">Historial de alquileres en Tekdrive</p>
         </header>
 
-        {reservas.length === 0 ? (
-          /* Estado Vacío */
-          <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-gray-300">
-            <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-              <Car size={32} />
-            </div>
-            <h3 className="text-[#003853] font-bold text-lg mb-2">No tienes reservas aún</h3>
-            <p className="text-gray-500 mb-6 max-w-xs mx-auto text-sm">
-              Cuando alquiles un vehículo con nosotros, aparecerá en esta sección.
-            </p>
-            <Link 
-              href="/flota" 
-              className="inline-block bg-[#db5576] text-white font-bold py-3 px-8 rounded-lg uppercase tracking-widest text-xs shadow-md hover:bg-[#c24a68] transition-all"
-            >
-              Explorar Flota
-            </Link>
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#db5576]"></div>
           </div>
-        ) : (
-          /* Listado de Reservas */
+        ) : reservas.length > 0 ? (
           <div className="space-y-4">
             {reservas.map((reserva) => (
-              <div 
-                key={reserva.id} 
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-[#003853] p-3 rounded-xl text-white">
-                        <Car size={24} />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-[#003853] text-lg">{reserva.auto}</h3>
-                        <p className="text-gray-400 text-xs uppercase tracking-wider font-medium">{reserva.modelo}</p>
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                      reserva.estado === 'Activa' ? 'bg-green-100 text-green-700' : 
-                      reserva.estado === 'Pendiente' ? 'bg-yellow-100 text-yellow-700' : 
-                      'bg-gray-100 text-gray-600'
-                    }`}>
-                      {reserva.estado}
-                    </span>
+              <div key={reserva.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all hover:shadow-md">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-[#4882a1]">
+                    <Car size={24} />
                   </div>
-
-                  <hr className="border-gray-50 mb-4" />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div className="flex items-center gap-3 text-gray-600">
-                      <Calendar size={18} className="text-[#4882a1]" />
-                      <div className="text-xs">
-                        <p className="text-gray-400 uppercase font-bold text-[9px]">Periodo</p>
-                        <p className="font-medium">{reserva.fechaInicio} - {reserva.fechaFin}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 text-gray-600">
-                      <Clock size={18} className="text-[#4882a1]" />
-                      <div className="text-xs">
-                        <p className="text-gray-400 uppercase font-bold text-[9px]">ID de Reserva</p>
-                        <p className="font-medium">#{reserva.id}</p>
-                      </div>
+                  <div>
+                    <h3 className="font-bold text-[#003853] uppercase text-sm">{reserva.nombreAuto}</h3>
+                    <div className="flex items-center gap-3 mt-1 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                      <span className="flex items-center gap-1"><Calendar size={12} /> {reserva.fechaInicio}</span>
+                      <span className="flex items-center gap-1"><Clock size={12} /> {reserva.dias} días</span>
                     </div>
                   </div>
+                </div>
 
-                  <div className="bg-gray-50 p-4 rounded-xl flex justify-between items-center">
-                    <div>
-                      <p className="text-[9px] text-gray-400 uppercase font-bold">Total Pagado</p>
-                      <p className="text-[#003853] font-black text-xl">${reserva.precioTotal.toFixed(2)}</p>
-                    </div>
-                    <button className="text-[#db5576] font-bold text-xs uppercase hover:underline cursor-pointer">
-                      Ver detalles
-                    </button>
+                <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto border-t md:border-none pt-4 md:pt-0">
+                  <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border ${getStatusStyle(reserva.estado)}`}>
+                    {reserva.estado}
                   </div>
+                  <p className="text-lg font-black text-[#003853] mt-1">L.{reserva.total.toLocaleString()}</p>
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-3xl p-12 text-center border border-dashed border-gray-200">
+            <AlertCircle className="mx-auto text-gray-200 mb-4" size={48} />
+            <h2 className="text-[#003853] font-bold uppercase text-sm">No tienes reservas activas</h2>
+            <p className="text-gray-400 text-xs mt-2 mb-6">Parece que aún no has alquilado ningún vehículo con nosotros.</p>
+            <Link href="/autos" className="bg-[#db5576] text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-pink-100 hover:bg-[#c24a68] transition-all">
+              Explorar Flota
+            </Link>
           </div>
         )}
       </div>

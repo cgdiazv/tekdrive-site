@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { 
   ChevronRight, 
@@ -90,34 +90,46 @@ export default function ReservaAutoPage({ params }: { params: Promise<{ id: stri
   }
 
   const handleReserva = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (diasTotales <= 0) return alert("Por favor, selecciona un rango de fechas válido.");
-    
-    setLoading(true);
-    try {
-      const nuevaReserva = {
-        autoId: autoSeleccionado.id,
-        nombreAuto: autoSeleccionado.name,
-        clienteId: user?.uid || 'invitado',
-        ...datosCliente,
-        fechaInicio: fechaRecogida,
-        fechaFin: fechaEntrega,
-        dias: diasTotales,
-        total,
-        estado: 'Pendiente',
-        fechaCreacion: new Date()
-      };
+  e.preventDefault();
+  
+  // 1. Verificación de seguridad
+  if (diasTotales <= 0) return alert("Por favor, selecciona un rango de fechas válido.");
+  
+  setLoading(true);
 
-      await addDoc(collection(db, 'reservas'), nuevaReserva);
-      alert('¡Reserva enviada con éxito! Nos comunicaremos contigo pronto.');
-      router.push('/cuenta/reservas'); 
-    } catch (error) {
-      console.error("Error al procesar reserva:", error);
-      alert("Hubo un problema al procesar tu reserva. Intenta de nuevo.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    // 2. Intentamos obtener el UID más fresco posible
+    // Si 'user' de useAuth() falla, podemos intentar con auth.currentUser directamente
+    const userIdFinal = user?.uid || auth.currentUser?.uid || 'invitado';
+
+    const nuevaReserva = {
+      autoId: autoSeleccionado.id,
+      nombreAuto: autoSeleccionado.name,
+      clienteId: userIdFinal, // <--- Usamos la variable verificada
+      ...datosCliente,
+      fechaInicio: fechaRecogida,
+      fechaFin: fechaEntrega,
+      dias: diasTotales,
+      total,
+      estado: 'Pendiente',
+      fechaCreacion: new Date(),
+      metodoRegistro: userIdFinal === 'invitado' ? 'Visita' : 'Usuario Registrado'
+    };
+
+    console.log("Enviando reserva con Cliente ID:", userIdFinal); // Para que revises en consola
+
+    await addDoc(collection(db, 'reservas'), nuevaReserva);
+    
+    alert('¡Reserva enviada con éxito!');
+    router.push('/cuenta/reservas'); 
+    
+  } catch (error) {
+    console.error("Error al procesar reserva:", error);
+    alert("Hubo un problema. Revisa tu conexión.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main 

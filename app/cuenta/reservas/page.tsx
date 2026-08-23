@@ -39,20 +39,37 @@ export default function MisReservasPage() {
       }
 
       try {
+        setLoading(true);
         // Consultamos la colección 'reservas' filtrando por el UID del usuario logueado
-        const q = query(
-          collection(db, 'reservas'),
-          where('clienteId', '==', user.uid),
-          orderBy('fechaCreacion', 'desc')
-        );
+        const qUid = query(collection(db, 'reservas'), where('clienteId', '==', user.uid));
+        
+        // También consultamos por email por si hizo reservas como "invitado" antes de registrarse
+        const fetchPromises = [getDocs(qUid)];
+        if (user.email) {
+          const qEmail = query(collection(db, 'reservas'), where('email', '==', user.email));
+          fetchPromises.push(getDocs(qEmail));
+        }
 
-        const querySnapshot = await getDocs(q);
-        const listaReservas = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Reserva[];
+        const snapshots = await Promise.all(fetchPromises);
+        
+        // Usamos un Map para evitar duplicados si una reserva coincide en uid y email
+        const reservasMap = new Map();
+        snapshots.forEach(snapshot => {
+          snapshot.docs.forEach(doc => {
+            reservasMap.set(doc.id, { id: doc.id, ...doc.data() });
+          });
+        });
 
-        setReservas(listaReservas);
+        const listaReservas = Array.from(reservasMap.values()) as any[];
+
+        // Ordenamos localmente por fecha de creación (más reciente primero)
+        listaReservas.sort((a, b) => {
+          const dateA = a.fechaCreacion?.toDate ? a.fechaCreacion.toDate() : new Date(a.fechaCreacion || 0);
+          const dateB = b.fechaCreacion?.toDate ? b.fechaCreacion.toDate() : new Date(b.fechaCreacion || 0);
+          return dateB.getTime() - dateA.getTime();
+        });
+
+        setReservas(listaReservas as Reserva[]);
       } catch (error) {
         console.error("Error al obtener reservas:", error);
       } finally {
@@ -84,6 +101,11 @@ export default function MisReservasPage() {
         <header className="mb-10">
           <h1 className="text-3xl font-black text-[#003853] uppercase tracking-tight">Mis Reservas</h1>
           <p className="text-gray-400 text-xs uppercase tracking-widest mt-1">Historial de alquileres en Tekdrive</p>
+          {user && (
+            <p className="text-gray-300 text-[9px] uppercase tracking-widest mt-2 border border-gray-100 bg-white inline-block px-2 py-1 rounded">
+              Depuración - Mi UID: {user.uid}
+            </p>
+          )}
         </header>
 
         {loading ? (
@@ -121,7 +143,7 @@ export default function MisReservasPage() {
             <AlertCircle className="mx-auto text-gray-200 mb-4" size={48} />
             <h2 className="text-[#003853] font-bold uppercase text-sm">No tienes reservas activas</h2>
             <p className="text-gray-400 text-xs mt-2 mb-6">Parece que aún no has alquilado ningún vehículo con nosotros.</p>
-            <Link href="/autos" className="bg-[#db5576] text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-pink-100 hover:bg-[#c24a68] transition-all">
+            <Link href="/autos" className="bg-[#db5576] text-white px-8 py-3 rounded-full font-black uppercase text-[10px] tracking-widest shadow-lg shadow-pink-100 hover:bg-[#c24a68] transition-all">
               Explorar Flota
             </Link>
           </div>

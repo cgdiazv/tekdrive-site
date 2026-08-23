@@ -66,14 +66,14 @@ export default function ReservaAutoPage({ params }: { params: Promise<{ id: stri
 
   // Autocompletar datos si el usuario tiene sesión iniciada
   useEffect(() => {
-    if (user) {
-      const nombreCompleto = user.displayName?.split(' ') || ['', ''];
-      setDatosCliente({
-        nombre: nombreCompleto[0],
-        apellido: nombreCompleto.slice(1).join(' '),
-        email: user.email || '',
-        telefono: '' 
-      });
+    const activeUser = user || auth.currentUser;
+    if (activeUser) {
+      setDatosCliente(prev => ({
+        ...prev,
+        nombre: activeUser.displayName ? activeUser.displayName.split(' ')[0] : prev.nombre,
+        apellido: activeUser.displayName ? activeUser.displayName.split(' ').slice(1).join(' ') : prev.apellido,
+        email: activeUser.email || prev.email || ''
+      }));
     }
   }, [user]);
 
@@ -290,9 +290,9 @@ export default function ReservaAutoPage({ params }: { params: Promise<{ id: stri
                   />
                 </div>
 
-                {!user && (
+                {!(user || auth.currentUser) && (
                   <div className="py-2 text-center">
-                    <Link href="/login" className="text-[9px] text-[#db5576] font-black uppercase tracking-tighter hover:underline">
+                    <Link href={`/login?redirect=/autos/${autoId}`} className="text-[9px] text-[#db5576] font-black uppercase tracking-tighter hover:underline">
                       Inicia sesión para autocompletar tus datos
                     </Link>
                   </div>
@@ -309,7 +309,7 @@ export default function ReservaAutoPage({ params }: { params: Promise<{ id: stri
                   <button 
                     type="submit" 
                     disabled={loading} 
-                    className="bg-[#db5576] text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-pink-200/50 hover:bg-[#c24a68] transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                    className="bg-[#db5576] text-white px-8 py-4 rounded-full font-black uppercase text-xs tracking-widest shadow-lg shadow-pink-200/50 hover:bg-[#c24a68] transition-all cursor-pointer active:scale-95 disabled:opacity-50"
                   >
                     {loading ? 'Procesando...' : 'Reservar'}
                   </button>

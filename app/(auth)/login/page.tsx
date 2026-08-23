@@ -26,7 +26,9 @@ export default function LoginPage() {
       Cookies.set('session', 'true', { expires: 7, path: '/' });
 
       setTimeout(() => {
-        window.location.href = '/cuenta'; 
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectUrl = urlParams.get('redirect') || '/cuenta';
+        window.location.href = redirectUrl; 
       }, 800);
       
     } catch (err: any) {

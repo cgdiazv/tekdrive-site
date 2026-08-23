@@ -29,8 +29,9 @@ export default function RootLayout({
       lang="es"
       // 3. Inyectamos la variable de Roboto
       className={`${roboto.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <Navbar />
         
         <main className="flex-1">

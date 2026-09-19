@@ -60,7 +60,7 @@ const initialFormData = {
 };
 
 export default function RentarAutoPage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [formData, setFormData] = useState(initialFormData);
 
   // Estado multimedia
@@ -242,15 +242,6 @@ export default function RentarAutoPage() {
       setIsSending(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="py-24 text-center text-slate-500 text-sm flex items-center justify-center gap-3">
-        <Loader2 className="w-5 h-5 animate-spin text-[#003853]" />
-        <span>Verificando credenciales de acceso...</span>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-50/60 py-12 px-4 sm:px-6 lg:px-8">

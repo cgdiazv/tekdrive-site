@@ -5,6 +5,7 @@ import "./globals.css";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/context/AuthContext";
 
 // 2. Configuramos Roboto con los grosores que necesitamos
 const roboto = Roboto({
@@ -32,13 +33,15 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
-        <Navbar />
-        
-        <main className="flex-1">
-          {children}
-        </main>
-        
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          
+          <main className="flex-1">
+            {children}
+          </main>
+          
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

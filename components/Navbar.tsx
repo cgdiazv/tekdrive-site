@@ -34,6 +34,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center space-x-8">
           {[
             { name: 'AUTOS', href: '/autos' },
+            { name: 'RENTAR AUTO', href: '/rentar-auto' },
             { name: 'POLÍTICAS', href: '/politicas' },
             { name: 'PREGUNTAS FRECUENTES', href: '/preguntas' },
             { name: 'CONTÁCTENOS', href: '/contacto' },
@@ -80,6 +81,7 @@ export default function Navbar() {
         <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="flex flex-col p-6 space-y-4">
             <Link href="/autos" onClick={() => setIsOpen(false)} className="text-[#003853] font-bold text-sm uppercase border-b border-gray-50 pb-2">Autos</Link>
+            <Link href="/rentar-auto" onClick={() => setIsOpen(false)} className="text-[#003853] font-bold text-sm uppercase border-b border-gray-50 pb-2">Rentar Auto</Link>
             <Link href="/politicas" onClick={() => setIsOpen(false)} className="text-[#003853] font-bold text-sm uppercase border-b border-gray-50 pb-2">Políticas</Link>
             <Link href="/preguntas" onClick={() => setIsOpen(false)} className="text-[#003853] font-bold text-sm uppercase border-b border-gray-50 pb-2">Preguntas Frecuentes</Link>
             <Link href="/contacto" onClick={() => setIsOpen(false)} className="text-[#003853] font-bold text-sm uppercase border-b border-gray-50 pb-2">Contáctenos</Link>

@@ -22,6 +22,7 @@ export default function Footer() {
             <h3 className="text-xl font-bold mb-6">Enlaces</h3>
             <ul className="space-y-4">
               <li><Link href="/autos" className="hover:text-gray-200 transition-colors">Autos</Link></li>
+              <li><Link href="/rentar-auto" className="hover:text-gray-200 transition-colors">Rentar Auto</Link></li>
               <li><Link href="/politicas" className="hover:text-gray-200 transition-colors">Políticas</Link></li>
               <li><Link href="/preguntas" className="hover:text-gray-200 transition-colors">Preguntas Frecuentes</Link></li>
               <li><Link href="/contacto" className="hover:text-gray-200 transition-colors">Contáctenos</Link></li>

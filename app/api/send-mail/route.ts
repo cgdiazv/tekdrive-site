@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     // 3. Envío del correo
     const response = await resend.emails.send({
       from: 'Tekdrive Web <notifications@indevasa.com>',
-      to: 'reservaciones@tekdrivehn.com',
+      to: 'miranda.roger@gmail.com',
       subject: `Nueva consulta: ${nombre}`,
       replyTo: email, 
       html: `

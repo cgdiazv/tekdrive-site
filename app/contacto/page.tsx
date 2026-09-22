@@ -12,7 +12,7 @@ export default function ContactoPage() {
     const data = Object.fromEntries(formData);
 
     try {
-      const response = await fetch('/api/send-email', {
+      const response = await fetch('/api/send-mail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

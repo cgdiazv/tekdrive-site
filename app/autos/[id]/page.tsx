@@ -119,6 +119,17 @@ export default function ReservaAutoPage({ params }: { params: Promise<{ id: stri
     console.log("Enviando reserva con Cliente ID:", userIdFinal); // Para que revises en consola
 
     await addDoc(collection(db, 'reservas'), nuevaReserva);
+
+    // Enviar notificación por correo a miranda.roger@gmail.com
+    try {
+      await fetch('/api/send-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevaReserva)
+      });
+    } catch (mailError) {
+      console.warn('Advertencia al enviar email de reserva:', mailError);
+    }
     
     alert('¡Reserva enviada con éxito!');
     router.push('/cuenta/reservas'); 

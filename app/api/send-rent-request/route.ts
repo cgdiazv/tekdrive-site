@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       try {
         await resend.emails.send({
           from: 'Tekdrive Web <notifications@indevasa.com>',
-          to: ['reservaciones@tekdrivehn.com'],
+          to: ['miranda.roger@gmail.com'],
           replyTo: body.email,
           subject: `Nueva Solicitud de Renta - ${body.firstName} ${body.lastName} (${body.vehicleType || 'Vehículo'})`,
           react: createElement(RentalRequestEmail, { formData: body }),
